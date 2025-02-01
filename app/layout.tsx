@@ -1,11 +1,13 @@
 import "@/styles/globals.css"
-import type { Metadata } from "next"
+import './globals.css'
+
 import { Lato } from "next/font/google"
+import type { Metadata } from "next"
 import type React from "react" // Import React
 
 const lato = Lato({
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["100", "300", "400", "700", "900"],
   variable: "--font-lato",
 })
 
@@ -20,12 +22,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={`${lato.variable} font-lato`}>{children}</body>
+    <html lang="en" className={`${lato.variable}`}>
+      <body>{children}</body>
     </html>
   )
 }
 
 
 
-import './globals.css'

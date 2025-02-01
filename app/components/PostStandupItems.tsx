@@ -1,43 +1,66 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useEffect, useState } from "react"
+
+import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
 
 interface PostStandupItem {
   id: number
   text: string
   discussed: boolean
+  markedForDeletion?: boolean
 }
 
 export function PostStandupItems() {
-  const [items, setItems] = useState<PostStandupItem[]>([])
+  const [items, setItems] = useState<PostStandupItem[]>(() => {
+    if (typeof window !== 'undefined') {
+      const savedItems = localStorage.getItem("postStandupItems")
+      const allItems = savedItems ? JSON.parse(savedItems) : []
+      // Only show non-discussed items on initial load
+      return allItems.filter((item: PostStandupItem) => !item.discussed)
+    }
+    return []
+  })
   const [newItem, setNewItem] = useState("")
   const { toast } = useToast()
 
+  // Save to localStorage whenever items change
   useEffect(() => {
     const savedItems = localStorage.getItem("postStandupItems")
-    if (savedItems) {
-      setItems(JSON.parse(savedItems))
-    }
-  }, [])
+    const currentItems = savedItems ? JSON.parse(savedItems) : []
+    
+    // Update existing items while preserving non-displayed items
+    const updatedItems = currentItems.map((savedItem: PostStandupItem) => {
+      const matchingItem = items.find(item => item.id === savedItem.id)
+      return matchingItem || savedItem
+    })
 
-  useEffect(() => {
-    localStorage.setItem("postStandupItems", JSON.stringify(items))
+    localStorage.setItem("postStandupItems", JSON.stringify(updatedItems))
   }, [items])
 
   const addItem = () => {
     if (newItem.trim()) {
-      setItems([...items, { id: Date.now(), text: newItem.trim(), discussed: false }])
+      const newItems = [...items, { id: Date.now(), text: newItem.trim(), discussed: false }]
+      setItems(newItems)
+      localStorage.setItem("postStandupItems", JSON.stringify(newItems))
       setNewItem("")
+      toast({
+        title: "Item Added",
+        description: "Post-standup item has been added.",
+      })
     }
   }
 
   const toggleItemDiscussed = (id: number) => {
-    setItems(items.map((item) => (item.id === id ? { ...item, discussed: !item.discussed } : item)))
+    setItems(items.map(item => 
+      item.id === id 
+        ? { ...item, discussed: !item.discussed }
+        : item
+    ))
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -80,21 +103,27 @@ export function PostStandupItems() {
           </Button>
         </div>
         <ul className="space-y-2">
-          {items.map((item) => (
-            <li key={item.id} className="flex items-center space-x-2">
-              <Checkbox
-                id={`item-${item.id}`}
-                checked={item.discussed}
-                onCheckedChange={() => toggleItemDiscussed(item.id)}
-              />
-              <label
-                htmlFor={`item-${item.id}`}
-                className={`flex-grow ${item.discussed ? "line-through text-muted-foreground" : ""}`}
-              >
-                {item.text}
-              </label>
-            </li>
-          ))}
+          {items
+            .filter(item => !item.markedForDeletion || item.discussed)
+            .map((item) => (
+              <li key={item.id} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`item-${item.id}`}
+                  checked={item.discussed}
+                  onCheckedChange={() => toggleItemDiscussed(item.id)}
+                />
+                <label
+                  htmlFor={`item-${item.id}`}
+                  className={`flex-grow ${
+                    item.discussed 
+                      ? "line-through text-muted-foreground opacity-50" 
+                      : ""
+                  }`}
+                >
+                  {item.text}
+                </label>
+              </li>
+            ))}
         </ul>
       </CardContent>
     </Card>

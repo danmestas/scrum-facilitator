@@ -1,15 +1,26 @@
-import { Button } from "@/components/ui/button"
+"use client"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChevronRight } from "lucide-react"
+import { ChevronRight, Trash2 } from "lucide-react"
+
+import { Button } from "@/components/ui/button"
+
+type StackLayer = "database" | "api" | "ui"
+
+interface TeamMember {
+  name: string
+  layer: StackLayer
+}
 
 interface NameListProps {
-  members: { name: string; layer: string }[]
-  layer: string
+  members: TeamMember[]
+  layer: StackLayer
   currentSpeaker: string | null
-  setCurrentSpeaker: (name: string) => void
-  copyNames: (layer: string) => void
-  shuffleNames: (layer: string) => void
+  setCurrentSpeaker: (name: string | null) => void
+  copyNames: (layer: StackLayer) => void
+  shuffleNames: (layer: StackLayer) => void
   onNameClick: (name: string) => void
+  onDelete: (name: string, layer: StackLayer) => void
 }
 
 export function NameList({
@@ -20,12 +31,13 @@ export function NameList({
   copyNames,
   shuffleNames,
   onNameClick,
+  onDelete,
 }: NameListProps) {
   return (
-    <Card className="bg-card text-card-foreground">
+    <Card>
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
-          <span>{layer.toUpperCase()} Team</span>
+          <span>{layer.toUpperCase()}</span>
           <div>
             <Button onClick={() => copyNames(layer)} variant="outline" className="mr-2">
               Copy Names
@@ -38,23 +50,34 @@ export function NameList({
       </CardHeader>
       <CardContent>
         <ul className="space-y-2">
-          {members.map((member) => (
+          {members && members.map((member) => (
             <li
               key={member.name}
-              className={`flex items-center p-2 rounded cursor-pointer transition-colors ${
-                currentSpeaker === member.name
-                  ? "bg-primary text-primary-foreground"
-                  : "hover:bg-accent hover:text-accent-foreground"
-              }`}
-              onClick={() => {
-                setCurrentSpeaker(member.name)
-                onNameClick(member.name)
-              }}
+              className="flex items-center justify-between p-2 rounded cursor-pointer transition-colors group hover:bg-accent hover:text-accent-foreground"
             >
-              <ChevronRight
-                className={`mr-2 h-4 w-4 ${currentSpeaker === member.name ? "opacity-100" : "opacity-0"}`}
-              />
-              {member.name}
+              <div
+                className="flex items-center flex-1"
+                onClick={() => {
+                  setCurrentSpeaker(member.name)
+                  onNameClick(member.name)
+                }}
+              >
+                <ChevronRight
+                  className={`mr-2 h-4 w-4 ${currentSpeaker === member.name ? "opacity-100" : "opacity-0"}`}
+                />
+                <span>{member.name}</span>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onDelete(member.name, layer)
+                }}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
             </li>
           ))}
         </ul>
@@ -62,4 +85,3 @@ export function NameList({
     </Card>
   )
 }
-

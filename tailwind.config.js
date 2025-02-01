@@ -12,7 +12,7 @@ module.exports = {
       },
       extend: {
         fontFamily: {
-          lato: ["Lato", "sans-serif"],
+          lato: ["var(--font-lato)"],
         },
         colors: {
           border: "hsl(var(--border))",

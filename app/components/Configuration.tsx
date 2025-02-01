@@ -1,12 +1,13 @@
 "use client"
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Trash2 } from "lucide-react"
+import { useState } from "react"
 
 type StackLayer = "database" | "api" | "ui"
 
@@ -66,7 +67,12 @@ export function Configuration({ onAdd, onConfigUpdate, initialTeamName, initialT
                 <Trash2 className="h-4 w-4" />
               </Button>
             </div>
-            <Button type="button" onClick={handleConfigUpdate}>
+            <Button 
+              type="button" 
+              variant="outline"
+              onClick={handleConfigUpdate}
+              className="bg-background hover:bg-accent"
+            >
               Update Configuration
             </Button>
           </div>
@@ -89,7 +95,12 @@ export function Configuration({ onAdd, onConfigUpdate, initialTeamName, initialT
               placeholder="Enter name"
               className="my-2"
             />
-            <Button type="submit" onClick={handleSubmit}>
+            <Button 
+              type="submit" 
+              variant="outline"
+              onClick={handleSubmit}
+              className="bg-background hover:bg-accent"
+            >
               Add Member
             </Button>
           </div>
