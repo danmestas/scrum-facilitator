@@ -13,6 +13,7 @@ import { NameList } from "./components/NameList"
 import { PostStandupItems } from "./components/PostStandupItems"
 import { ThemeProvider } from "./components/theme-provider"
 import { Timer } from "./components/Timer"
+import { motion } from "framer-motion"
 import { useToast } from "@/hooks/use-toast"
 
 type StackLayer = "database" | "api" | "ui"
@@ -30,6 +31,7 @@ export default function ScrumFacilitator() {
   const [teamName, setTeamName] = useState("")
   const [teamInfo, setTeamInfo] = useState<string | null>(null)
   const { toast } = useToast()
+  const [timeIsUp, setTimeIsUp] = useState(false)
 
   // Handle localStorage after mount
   useEffect(() => {
@@ -144,10 +146,18 @@ export default function ScrumFacilitator() {
   }
 
   const handleTimerClose = () => {
-    const nextSpeaker = getNextSpeaker(currentSpeaker!)
-    setCurrentSpeaker(nextSpeaker)
-    setIsTimerOpen(false)
+    const nextSpeaker = getNextSpeaker(currentSpeaker!);
+    setCurrentSpeaker(nextSpeaker);
+    setIsTimerOpen(false);
+    setTimeIsUp(false);
   }
+
+  // Add cleanup when timer opens
+  useEffect(() => {
+    if (isTimerOpen) {
+      setTimeIsUp(false);
+    }
+  }, [isTimerOpen]);
 
   const copyAllNames = () => {
     const groupedNames = [
@@ -282,14 +292,34 @@ export default function ScrumFacilitator() {
             <PostStandupItems />
           </div>
         </main>
-        <Dialog open={isTimerOpen} onOpenChange={handleTimerClose}>
+        <Dialog 
+          open={isTimerOpen} 
+          onOpenChange={(open) => {
+            if (!open) {
+              handleTimerClose();
+            }
+          }}
+        >
           <DialogContent>
             <DialogHeader>
               <DialogTitle className="text-3xl font-bold text-center">
-                {currentSpeaker}'s Turn
+                {timeIsUp ? (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="text-destructive"
+                  >
+                    {currentSpeaker} has been eliminated. 🔴
+                  </motion.div>
+                ) : (
+                  `${currentSpeaker}'s Turn`
+                )}
               </DialogTitle>
             </DialogHeader>
-            <Timer defaultTime="2:00" />
+            <Timer 
+              defaultTime="2:00" 
+              onTimeEnd={(isEliminated) => setTimeIsUp(isEliminated ?? true)}
+            />
           </DialogContent>
         </Dialog>
         <img

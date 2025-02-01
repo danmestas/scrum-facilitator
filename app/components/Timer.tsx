@@ -1,5 +1,7 @@
 "use client"
 
+import { DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { motion, useAnimation, useAnimationControls } from "framer-motion"
 import { useEffect, useState } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -8,6 +10,7 @@ import { useToast } from "@/hooks/use-toast"
 
 interface TimerProps {
   defaultTime: string
+  onTimeEnd?: (isEliminated?: boolean) => void
 }
 
 interface PostStandupItem {
@@ -16,7 +19,62 @@ interface PostStandupItem {
   discussed: boolean
 }
 
-export function Timer({ defaultTime }: TimerProps) {
+// Add these animation variants at the top of the file
+const timerVariants = {
+  normal: { scale: 1, color: "#ffffff" },
+  warning: { 
+    scale: [1, 1.05, 1],
+    color: "#f59e0b",
+    transition: { 
+      duration: 1,
+      repeat: Infinity
+    }
+  },
+  urgent: {
+    scale: [1, 1.1, 1],
+    color: "#ef4444",
+    transition: {
+      duration: 0.5,
+      repeat: Infinity
+    }
+  },
+  critical: {
+    scale: [1, 1.2, 1],
+    color: "#dc2626",
+    rotate: [0, -2, 2, 0],
+    transition: {
+      duration: 0.3,
+      repeat: Infinity
+    }
+  }
+};
+
+const shakeVariants = {
+  shake: {
+    x: [-2, 2, -2, 2, 0],
+    transition: { duration: 0.5, repeat: Infinity }
+  }
+};
+
+const explosionVariants = {
+  hidden: { 
+    scale: 0,
+    opacity: 0 
+  },
+  visible: (i: number) => ({
+    scale: [1, 0],
+    opacity: [1, 0],
+    x: Math.random() * 500 - 250,
+    y: Math.random() * 500 - 250,
+    transition: { 
+      duration: 0.8,
+      delay: i * 0.02,
+      ease: "easeOut"
+    }
+  })
+};
+
+export function Timer({ defaultTime, onTimeEnd }: TimerProps) {
   const [time, setTime] = useState(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem("defaultTimer") || defaultTime
@@ -30,16 +88,51 @@ export function Timer({ defaultTime }: TimerProps) {
   })
   const [newItem, setNewItem] = useState("")
   const { toast } = useToast()
+  const [timeIsUp, setTimeIsUp] = useState(false)
+  const [timerFinished, setTimerFinished] = useState(false)
 
+  const controls = useAnimationControls();
+
+  // Create explosion particles array
+  const explosionParticles = Array.from({ length: 50 }, (_, i) => i);
+
+  // Separate useEffect for cleanup
   useEffect(() => {
-    let interval: NodeJS.Timeout
+    return () => {
+      setTimeIsUp(false);
+      setIsRunning(false);
+    };
+  }, []);
+
+  // Update the timer effect to handle explosion
+  useEffect(() => {
     if (isRunning && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft((time) => time - 1)
-      }, 1000)
+      const timer = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            setIsRunning(false);
+            setTimeIsUp(true);
+            onTimeEnd?.(); // Notify parent
+            return 0;
+          }
+          
+          const newTime = prev - 1;
+          if (newTime <= 30) {
+            if (newTime > 20) {
+              controls.start("warning");
+            } else if (newTime > 10) {
+              controls.start("urgent");
+            } else {
+              controls.start("critical");
+            }
+          }
+          return newTime;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
     }
-    return () => clearInterval(interval)
-  }, [isRunning, timeLeft])
+  }, [isRunning, timeLeft, controls, onTimeEnd]);
 
   useEffect(() => {
     const [minutes, seconds] = time.split(":").map(Number)
@@ -58,9 +151,13 @@ export function Timer({ defaultTime }: TimerProps) {
   const [updateTrigger, setUpdateTrigger] = useState(0)
 
   const startTimer = () => {
+    setTimeIsUp(false)
     const [minutes, seconds] = time.split(":").map(Number)
     setTimeLeft(minutes * 60 + seconds)
     setIsRunning(true)
+    
+    // Reset animation state
+    controls.start("normal")
   }
 
   const stopTimer = () => {
@@ -68,10 +165,24 @@ export function Timer({ defaultTime }: TimerProps) {
   }
 
   const resetTimer = () => {
-    setIsRunning(false)
-    const [minutes, seconds] = time.split(":").map(Number)
-    setTimeLeft(minutes * 60 + seconds)
-  }
+    setIsRunning(false);
+    setTimeIsUp(false);
+    const [minutes, seconds] = time.split(":").map(Number);
+    setTimeLeft(minutes * 60 + seconds);
+    
+    // Stop all animations and reset to normal state
+    controls.stop(); // Stop any ongoing animations
+    controls.set({ // Immediately set to initial state
+      scale: 1,
+      color: "#ffffff",
+      rotate: 0,
+      x: 0,
+      y: 0
+    });
+    controls.start("normal");
+    
+    onTimeEnd?.(false);
+  };
 
   const addItem = () => {
     if (newItem.trim()) {
@@ -104,7 +215,7 @@ export function Timer({ defaultTime }: TimerProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 relative">
       <div className="flex flex-col items-center space-y-4">
         <Input
           type="text"
@@ -113,7 +224,35 @@ export function Timer({ defaultTime }: TimerProps) {
           placeholder="MM:SS"
           className="w-24 text-center"
         />
-        <div className="text-6xl font-mono">{formatTime(timeLeft)}</div>
+        <motion.div 
+          className="text-6xl font-mono"
+          animate={controls}
+          variants={timerVariants}
+        >
+          {formatTime(timeLeft)}
+        </motion.div>
+        
+        {/* Explosion effect */}
+        {timeIsUp && (
+          <motion.div 
+            className="absolute inset-0 pointer-events-none"
+            initial="hidden"
+            animate="visible"
+          >
+            {explosionParticles.map((i) => (
+              <motion.div
+                key={i}
+                custom={i}
+                variants={explosionVariants}
+                className="absolute top-1/2 left-1/2 w-3 h-3 rounded-full"
+                style={{
+                  background: i % 2 === 0 ? '#ef4444' : '#f59e0b'
+                }}
+              />
+            ))}
+          </motion.div>
+        )}
+
         <div className="space-x-2">
           {!isRunning ? (
             <Button onClick={startTimer}>Start</Button>
