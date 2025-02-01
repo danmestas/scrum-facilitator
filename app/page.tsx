@@ -218,9 +218,9 @@ export default function ScrumFacilitator() {
         <main className="container mx-auto p-4">
           <Tabs defaultValue="database" className="space-y-4">
             <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="database">Database</TabsTrigger>
-              <TabsTrigger value="api">API</TabsTrigger>
               <TabsTrigger value="ui">UI</TabsTrigger>
+              <TabsTrigger value="api">API</TabsTrigger>
+              <TabsTrigger value="database">Database</TabsTrigger>
               <TabsTrigger value="config">
                 <Settings className="h-4 w-4 mr-2" />
                 Config
