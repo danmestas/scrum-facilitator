@@ -322,11 +322,11 @@ export default function ScrumFacilitator() {
             />
           </DialogContent>
         </Dialog>
-        <img
+        {/* <img
           src="/AAR.svg"
           alt="AAR Logo"
           className="fixed bottom-12 right-12 w-62 h-62 z-20 opacity-80 hover:opacity-100 transition-opacity cursor-pointer hover:scale-105 duration-200"
-        />
+        /> */}
       </div>
     </ThemeProvider>
   )
