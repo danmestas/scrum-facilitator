@@ -216,7 +216,7 @@ export default function ScrumFacilitator() {
           </div>
         </header>
         <main className="container mx-auto p-4">
-          <Tabs defaultValue="database" className="space-y-4">
+          <Tabs defaultValue="ui" className="space-y-4">
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="ui">UI</TabsTrigger>
               <TabsTrigger value="api">API</TabsTrigger>
