@@ -42,6 +42,24 @@ export function PostStandupItems() {
     localStorage.setItem("postStandupItems", JSON.stringify(updatedItems))
   }, [items])
 
+  // Add this new useEffect
+  useEffect(() => {
+    const loadItems = () => {
+      const savedItems = localStorage.getItem("postStandupItems")
+      const allItems = savedItems ? JSON.parse(savedItems) : []
+      setItems(allItems.filter((item: PostStandupItem) => !item.discussed))
+    }
+
+    window.addEventListener('storage', loadItems)
+    // Also listen for a custom event
+    window.addEventListener('postStandupItemsUpdated', loadItems)
+    
+    return () => {
+      window.removeEventListener('storage', loadItems)
+      window.removeEventListener('postStandupItemsUpdated', loadItems)
+    }
+  }, [])
+
   const addItem = () => {
     if (newItem.trim()) {
       const newItems = [...items, { id: Date.now(), text: newItem.trim(), discussed: false }]

@@ -79,6 +79,10 @@ export function Timer({ defaultTime }: TimerProps) {
       const currentItems: PostStandupItem[] = savedItems ? JSON.parse(savedItems) : []
       const newItems = [...currentItems, { id: Date.now(), text: newItem.trim(), discussed: false }]
       localStorage.setItem("postStandupItems", JSON.stringify(newItems))
+      
+      // Dispatch custom event to notify PostStandupItems
+      window.dispatchEvent(new Event('postStandupItemsUpdated'))
+      
       setNewItem("")
       toast({
         title: "Item Added",
