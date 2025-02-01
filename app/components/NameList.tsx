@@ -49,7 +49,7 @@ export function NameList({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <ul className="space-y-2">
+        <ul className="grid grid-cols-2 gap-2">
           {members && members.map((member) => (
             <li
               key={member.name}
@@ -65,12 +65,12 @@ export function NameList({
                 <ChevronRight
                   className={`mr-2 h-4 w-4 ${currentSpeaker === member.name ? "opacity-100" : "opacity-0"}`}
                 />
-                <span>{member.name}</span>
+                <span className="truncate">{member.name}</span>
               </div>
               <Button
                 variant="ghost"
                 size="icon"
-                className="opacity-0 group-hover:opacity-100 transition-opacity"
+                className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
                 onClick={(e) => {
                   e.stopPropagation()
                   onDelete(member.name, layer)
