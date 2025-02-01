@@ -92,10 +92,26 @@ export default function ScrumFacilitator() {
   }
 
   const shuffleNames = (layer: StackLayer) => {
-    const layerMembers = teamMembers.filter((member) => member.layer === layer)
-    const otherMembers = teamMembers.filter((member) => member.layer !== layer)
-    const shuffled = [...layerMembers].sort(() => Math.random() - 0.5)
-    setTeamMembers([...shuffled, ...otherMembers])
+    setTeamMembers(prevMembers => {
+      // Split into layer and non-layer members
+      const layerMembers = prevMembers.filter((member) => member.layer === layer)
+      const otherMembers = prevMembers.filter((member) => member.layer !== layer)
+      
+      // Shuffle only the layer members
+      const shuffled = [...layerMembers].sort(() => Math.random() - 0.5)
+      
+      // Replace the original layer members with shuffled ones at their original positions
+      const newMembers = [...prevMembers]
+      let shuffleIndex = 0
+      for (let i = 0; i < newMembers.length; i++) {
+        if (newMembers[i].layer === layer) {
+          newMembers[i] = shuffled[shuffleIndex]
+          shuffleIndex++
+        }
+      }
+      return newMembers
+    })
+    
     toast({
       title: "Shuffled!",
       description: `${layer.toUpperCase()} order has been randomized.`,
