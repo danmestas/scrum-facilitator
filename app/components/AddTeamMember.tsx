@@ -90,9 +90,9 @@ export function AddTeamMember({ onAdd, onConfigUpdate, initialTeamName, initialT
                 <SelectValue placeholder="Select layer" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="database">Database</SelectItem>
-                <SelectItem value="api">API</SelectItem>
                 <SelectItem value="ui">UI</SelectItem>
+                <SelectItem value="api">API</SelectItem>
+                <SelectItem value="database">Database</SelectItem>
               </SelectContent>
             </Select>
             <Input

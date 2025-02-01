@@ -1,11 +1,12 @@
 "use client"
 
 import { Card, CardContent } from "@/components/ui/card"
+import { Copy, Plane, Settings, Shuffle } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Plane, Settings } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useEffect, useState } from "react"
 
+import { Button } from "@/components/ui/button"
 import { Configuration } from "./components/Configuration"
 import { ModeToggle } from "./components/mode-toggle"
 import { NameList } from "./components/NameList"
@@ -83,7 +84,7 @@ export default function ScrumFacilitator() {
     const names = teamMembers
       .filter((member) => member.layer === layer)
       .map((member) => member.name)
-      .join(", ")
+      .join("\n")
     navigator.clipboard.writeText(names)
     toast({
       title: "Copied!",
@@ -148,6 +149,36 @@ export default function ScrumFacilitator() {
     setIsTimerOpen(false)
   }
 
+  const copyAllNames = () => {
+    const groupedNames = [
+      { layer: 'ui', names: teamMembers.filter(m => m.layer === 'ui').map(m => m.name) },
+      { layer: 'api', names: teamMembers.filter(m => m.layer === 'api').map(m => m.name) },
+      { layer: 'database', names: teamMembers.filter(m => m.layer === 'database').map(m => m.name) }
+    ];
+
+    const textToCopy = groupedNames
+      .filter(group => group.names.length > 0)
+      .map(group => `${group.layer.toUpperCase()}\n${group.names.join('\n')}`)
+      .join('\n\n');
+
+    navigator.clipboard.writeText(textToCopy);
+    toast({
+      title: "All Names Copied!",
+      description: "Team members copied in layer order (UI → API → Database)",
+    });
+  };
+
+  const shuffleAllNames = () => {
+    setTeamMembers(prev => {
+      const shuffled = [...prev].sort(() => Math.random() - 0.5)
+      return shuffled
+    })
+    toast({
+      title: "All Shuffled!",
+      description: "All team members have been randomized",
+    })
+  }
+
   if (!mounted) {
     return null // or a loading spinner
   }
@@ -161,7 +192,27 @@ export default function ScrumFacilitator() {
               <Plane className="h-6 w-6" />
               <h1 className="text-2xl font-bold">{teamName}</h1>
             </div>
-            <ModeToggle />
+            <div className="flex items-center gap-2">
+              <Button 
+                onClick={copyAllNames} 
+                variant="outline"
+                size="icon"
+                title="Copy all team members"
+                className="mr-2"
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
+              <Button 
+                onClick={shuffleAllNames} 
+                variant="outline"
+                size="icon"
+                title="Shuffle all team members"
+                className="mr-2"
+              >
+                <Shuffle className="h-4 w-4" />
+              </Button>
+              <ModeToggle />
+            </div>
           </div>
         </header>
         <main className="container mx-auto p-4">
@@ -241,6 +292,11 @@ export default function ScrumFacilitator() {
             <Timer defaultTime="2:00" />
           </DialogContent>
         </Dialog>
+        <img
+          src="/AAR.svg"
+          alt="AAR Logo"
+          className="fixed bottom-4 right-4 w-12 h-12 z-20 opacity-80 hover:opacity-100 transition-opacity cursor-pointer hover:scale-110 duration-200"
+        />
       </div>
     </ThemeProvider>
   )
