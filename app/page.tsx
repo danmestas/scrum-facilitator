@@ -295,7 +295,7 @@ export default function ScrumFacilitator() {
         <img
           src="/AAR.svg"
           alt="AAR Logo"
-          className="fixed bottom-4 right-4 w-12 h-12 z-20 opacity-80 hover:opacity-100 transition-opacity cursor-pointer hover:scale-110 duration-200"
+          className="fixed bottom-12 right-12 w-62 h-62 z-20 opacity-80 hover:opacity-100 transition-opacity cursor-pointer hover:scale-105 duration-200"
         />
       </div>
     </ThemeProvider>
