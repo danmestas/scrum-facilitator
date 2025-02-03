@@ -82,45 +82,6 @@ export default function ScrumFacilitator() {
     })
   }
 
-  const copyNames = (layer: StackLayer) => {
-    const names = teamMembers
-      .filter((member) => member.layer === layer)
-      .map((member) => member.name)
-      .join("\n")
-    navigator.clipboard.writeText(names)
-    toast({
-      title: "Copied!",
-      description: `${layer.toUpperCase()} names copied to clipboard.`,
-    })
-  }
-
-  const shuffleNames = (layer: StackLayer) => {
-    setTeamMembers(prevMembers => {
-      // Split into layer and non-layer members
-      const layerMembers = prevMembers.filter((member) => member.layer === layer)
-      const otherMembers = prevMembers.filter((member) => member.layer !== layer)
-      
-      // Shuffle only the layer members
-      const shuffled = [...layerMembers].sort(() => Math.random() - 0.5)
-      
-      // Replace the original layer members with shuffled ones at their original positions
-      const newMembers = [...prevMembers]
-      let shuffleIndex = 0
-      for (let i = 0; i < newMembers.length; i++) {
-        if (newMembers[i].layer === layer) {
-          newMembers[i] = shuffled[shuffleIndex]
-          shuffleIndex++
-        }
-      }
-      return newMembers
-    })
-    
-    toast({
-      title: "Shuffled!",
-      description: `${layer.toUpperCase()} order has been randomized.`,
-    })
-  }
-
   const handleNameClick = (name: string) => {
     setCurrentSpeaker(name)
     setIsTimerOpen(true)
@@ -173,21 +134,21 @@ export default function ScrumFacilitator() {
 
     navigator.clipboard.writeText(textToCopy);
     toast({
-      title: "All Names Copied!",
-      description: "Team members copied in layer order (UI → API → Database)",
+      title: "All Developers Copied!",
+      description: "Developers copied in layer order (UI → API → Database)",
     });
   };
 
   const shuffleAllNames = () => {
     setTeamMembers(prev => {
-      const shuffled = [...prev].sort(() => Math.random() - 0.5)
-      return shuffled
-    })
+      const shuffled = [...prev].sort(() => Math.random() - 0.5);
+      return shuffled;
+    });
     toast({
       title: "All Shuffled!",
-      description: "All team members have been randomized",
-    })
-  }
+      description: "All developers have been randomized",
+    });
+  };
 
   const handleNextSpeaker = () => {
     const nextSpeaker = getNextSpeaker(currentSpeaker!);
@@ -219,7 +180,7 @@ export default function ScrumFacilitator() {
                 onClick={copyAllNames} 
                 variant="outline"
                 size="icon"
-                title="Copy all team members"
+                title="Copy all developers"
                 className="mr-2"
               >
                 <Copy className="h-4 w-4" />
@@ -228,7 +189,7 @@ export default function ScrumFacilitator() {
                 onClick={shuffleAllNames} 
                 variant="outline"
                 size="icon"
-                title="Shuffle all team members"
+                title="Shuffle all developers"
                 className="mr-2"
               >
                 <Shuffle className="h-4 w-4" />
@@ -238,48 +199,19 @@ export default function ScrumFacilitator() {
           </div>
         </header>
         <main className="container mx-auto p-4">
-          <Tabs defaultValue="ui" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="ui">UI</TabsTrigger>
-              <TabsTrigger value="api">API</TabsTrigger>
-              <TabsTrigger value="database">Database</TabsTrigger>
+          <Tabs defaultValue="speakers" className="space-y-4">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="speakers">All Developers</TabsTrigger>
               <TabsTrigger value="config">
                 <Settings className="h-4 w-4 mr-2" />
                 Config
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="database">
+            <TabsContent value="speakers">
               <NameList
-                members={teamMembers.filter((m) => m.layer === "database")}
-                layer="database"
+                members={teamMembers}
                 currentSpeaker={currentSpeaker}
                 setCurrentSpeaker={setCurrentSpeaker}
-                copyNames={copyNames}
-                shuffleNames={shuffleNames}
-                onNameClick={handleNameClick}
-                onDelete={deleteTeamMember}
-              />
-            </TabsContent>
-            <TabsContent value="api">
-              <NameList
-                members={teamMembers.filter((m) => m.layer === "api")}
-                layer="api"
-                currentSpeaker={currentSpeaker}
-                setCurrentSpeaker={setCurrentSpeaker}
-                copyNames={copyNames}
-                shuffleNames={shuffleNames}
-                onNameClick={handleNameClick}
-                onDelete={deleteTeamMember}
-              />
-            </TabsContent>
-            <TabsContent value="ui">
-              <NameList
-                members={teamMembers.filter((m) => m.layer === "ui")}
-                layer="ui"
-                currentSpeaker={currentSpeaker}
-                setCurrentSpeaker={setCurrentSpeaker}
-                copyNames={copyNames}
-                shuffleNames={shuffleNames}
                 onNameClick={handleNameClick}
                 onDelete={deleteTeamMember}
               />
@@ -337,11 +269,6 @@ export default function ScrumFacilitator() {
             />
           </DialogContent>
         </Dialog>
-        {/* <img
-          src="/AAR.svg"
-          alt="AAR Logo"
-          className="fixed bottom-12 right-12 w-62 h-62 z-20 opacity-80 hover:opacity-100 transition-opacity cursor-pointer hover:scale-105 duration-200"
-        /> */}
       </div>
     </ThemeProvider>
   )
