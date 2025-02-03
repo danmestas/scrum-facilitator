@@ -257,9 +257,19 @@ export function Timer({ defaultTime, onTimeEnd, onNext, isLastSpeaker }: TimerPr
 
         <div className="flex space-x-2 justify-center mt-4">
           {!isRunning ? (
-            <Button onClick={startTimer}>Start</Button>
+            <Button 
+              onClick={startTimer} 
+              className="bg-blue-600/30 hover:bg-blue-700/40 border border-blue-400/50 text-blue-100"
+            >
+              INITIATE SEQUENCE
+            </Button>
           ) : (
-            <Button onClick={stopTimer} variant="destructive">Stop</Button>
+            <Button 
+              onClick={stopTimer} 
+              className="bg-blue-800/50 hover:bg-blue-900/60 border border-blue-500/50 text-blue-100"
+            >
+              ABORT PROTOCOL
+            </Button>
           )}
           <Button onClick={resetTimer} variant="outline">Reset</Button>
           {onNext && (
