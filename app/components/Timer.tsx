@@ -11,6 +11,8 @@ import { useToast } from "@/hooks/use-toast"
 interface TimerProps {
   defaultTime: string
   onTimeEnd?: (isEliminated?: boolean) => void
+  onNext?: () => void
+  isLastSpeaker?: boolean
 }
 
 interface PostStandupItem {
@@ -74,7 +76,7 @@ const explosionVariants = {
   })
 };
 
-export function Timer({ defaultTime, onTimeEnd }: TimerProps) {
+export function Timer({ defaultTime, onTimeEnd, onNext, isLastSpeaker }: TimerProps) {
   const [time, setTime] = useState(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem("defaultTimer") || defaultTime
@@ -253,13 +255,18 @@ export function Timer({ defaultTime, onTimeEnd }: TimerProps) {
           </motion.div>
         )}
 
-        <div className="space-x-2">
+        <div className="flex space-x-2 justify-center mt-4">
           {!isRunning ? (
             <Button onClick={startTimer}>Start</Button>
           ) : (
             <Button onClick={stopTimer} variant="destructive">Stop</Button>
           )}
           <Button onClick={resetTimer} variant="outline">Reset</Button>
+          {onNext && (
+            <Button onClick={onNext} variant="outline">
+              {isLastSpeaker ? "Close Timer" : "Next Speaker"}
+            </Button>
+          )}
         </div>
       </div>
       <div className="border-t pt-4">

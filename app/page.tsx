@@ -189,6 +189,18 @@ export default function ScrumFacilitator() {
     })
   }
 
+  const handleNextSpeaker = () => {
+    const nextSpeaker = getNextSpeaker(currentSpeaker!);
+    if (nextSpeaker) {
+      setCurrentSpeaker(nextSpeaker);
+      setTimeIsUp(false);
+    } else {
+      // Last speaker – close the timer modal.
+      setIsTimerOpen(false);
+      setTimeIsUp(false);
+    }
+  };
+
   if (!mounted) {
     return null // or a loading spinner
   }
@@ -317,8 +329,11 @@ export default function ScrumFacilitator() {
               </DialogTitle>
             </DialogHeader>
             <Timer 
+              key={currentSpeaker} 
               defaultTime="2:00" 
               onTimeEnd={(isEliminated) => setTimeIsUp(isEliminated ?? true)}
+              onNext={handleNextSpeaker}
+              isLastSpeaker={getNextSpeaker(currentSpeaker!) === null}
             />
           </DialogContent>
         </Dialog>
