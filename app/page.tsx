@@ -169,30 +169,32 @@ export default function ScrumFacilitator() {
   return (
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
       <div className="min-h-screen bg-background text-foreground font-lato">
-        <header className="bg-background text-foreground border-b p-4 shadow-sm">
+        <header className="bg-gradient-to-r from-gray-900 to-slate-900 border-b border-blue-500/30 p-4 shadow-lg shadow-blue-500/10">
           <div className="container mx-auto flex justify-between items-center">
             <div className="flex items-center space-x-2">
-              <Plane className="h-6 w-6" />
-              <h1 className="text-2xl font-bold">{teamName}</h1>
+              <Plane className="h-6 w-6 text-blue-400" />
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                {teamName || "CYBER OPS"}
+              </h1>
             </div>
             <div className="flex items-center gap-2">
               <Button 
                 onClick={copyAllNames} 
                 variant="outline"
                 size="icon"
-                title="Copy all developers"
-                className="mr-2"
+                title="Deploy roster to clipboard"
+                className="mr-2 border-blue-500/50 hover:bg-blue-900/20 hover:border-blue-500"
               >
-                <Copy className="h-4 w-4" />
+                <Copy className="h-4 w-4 text-blue-500" />
               </Button>
               <Button 
                 onClick={shuffleAllNames} 
                 variant="outline"
                 size="icon"
-                title="Shuffle all developers"
-                className="mr-2"
+                title="Randomize deployment order"
+                className="mr-2 border-blue-500/50 hover:bg-blue-900/20 hover:border-blue-500"
               >
-                <Shuffle className="h-4 w-4" />
+                <Shuffle className="h-4 w-4 text-blue-500" />
               </Button>
               <ModeToggle />
             </div>
@@ -251,12 +253,14 @@ export default function ScrumFacilitator() {
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="text-destructive"
+                    className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent"
                   >
-                    {currentSpeaker} has been eliminated. 🔴
+                    {currentSpeaker} TERMINATED ⚡
                   </motion.div>
                 ) : (
-                  `${currentSpeaker}'s Turn`
+                  <span className="bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent">
+                    {currentSpeaker}'s Turn 
+                  </span>
                 )}
               </DialogTitle>
             </DialogHeader>
