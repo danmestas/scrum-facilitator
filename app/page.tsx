@@ -100,11 +100,16 @@ export default function ScrumFacilitator() {
   }
 
   const getNextSpeaker = (currentName: string): string | null => {
-    const allMembers = [...teamMembers]
-    const currentIndex = allMembers.findIndex(member => member.name === currentName)
-    if (currentIndex === -1 || currentIndex === allMembers.length - 1) return null
-    return allMembers[currentIndex + 1].name
-  }
+    const layerOrder: StackLayer[] = ['ui', 'api', 'database'];
+    const sortedMembers = layerOrder.flatMap(layer =>
+      teamMembers.filter(member => member.layer === layer)
+    );
+    const currentIndex = sortedMembers.findIndex(member => member.name === currentName);
+    if (currentIndex === -1 || currentIndex === sortedMembers.length - 1) {
+      return null;
+    }
+    return sortedMembers[currentIndex + 1].name;
+  };
 
   const handleTimerClose = () => {
     const nextSpeaker = getNextSpeaker(currentSpeaker!);
