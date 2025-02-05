@@ -49,7 +49,7 @@ export function NameList({
                 {layerMembers.map((member) => (
                   <motion.li
                     key={member.name}
-                    className="flex items-center justify-between p-2 rounded cursor-pointer bg-slate-900/50 hover:bg-slate-800/50 border border-blue-500/20 backdrop-blur-sm"
+                    className="flex items-center justify-between p-2 rounded cursor-pointer bg-slate-900/50 hover:bg-slate-800/50 border border-blue-500/20 backdrop-blur-sm group"
                     whileHover={{ scale: 1.02 }}
                     transition={{ type: "spring", stiffness: 300 }}
                   >
@@ -68,13 +68,13 @@ export function NameList({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 hover:bg-blue-900/50"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-900/20"
                       onClick={(e) => {
                         e.stopPropagation()
-                        onDelete(member.name, layer)
+                        onDelete(member.name, member.layer)
                       }}
                     >
-                      <Trash2 className="h-4 w-4 text-blue-500" />
+                      <Trash2 className="h-4 w-4 text-blue-400" />
                     </Button>
                   </motion.li>
                 ))}
